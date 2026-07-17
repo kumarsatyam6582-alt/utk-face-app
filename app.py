@@ -18,17 +18,17 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model", "age_gender_model.keras")
 CASCADE_PATH = os.path.join(BASE_DIR, "haarcascade_frontalface_default.xml")
 
-# --- MODEL LOADING ---
+# --- MODEL LOADING with Better Error Handling ---
 @st.cache_resource
 def load_my_model():
     if not os.path.exists(MODEL_PATH):
-        st.error(f"❌ Model not found at: {MODEL_PATH}")
-        st.info("Please put your model file in the 'model/' folder.")
+        st.error(f"❌ Model file not found at: `{MODEL_PATH}`")
+        st.info("Please upload your `age_gender_model.keras` file into the `model/` folder.")
         st.stop()
     try:
         return tf.keras.models.load_model(MODEL_PATH, compile=False)
     except Exception as e:
-        st.error("❌ Failed to load model.")
+        st.error("❌ Failed to load model. The file may be corrupted or incompatible.")
         st.exception(e)
         st.stop()
 
@@ -43,7 +43,7 @@ def crop_face(uploaded_file):
         return None
 
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    
+
     if not os.path.exists(CASCADE_PATH):
         return img_rgb
 
@@ -72,10 +72,6 @@ def preprocess_image(cropped_img):
     bgr[..., 2] -= 123.68
     return np.expand_dims(bgr, axis=0)
 
-# --- AGE DENORMALIZATION ---
-AGE_MEAN = 33.24633554782242
-AGE_STD = 19.924041256760226
-
 # --- UI ---
 st.title("👤 UTK Face Age & Gender Predictor")
 st.markdown("**Optimized for All Age Groups**")
@@ -85,7 +81,7 @@ col_tune, col_main = st.columns([1, 3])
 with col_tune:
     st.header("⚙️ Controls")
     max_age = st.slider("Maximum Age", 1, 116, 116)
-    global_bias = st.slider("Global Fine-tune", -8, 8, 0, step=1)
+    global_bias = st.slider("Global Fine-tune", -15, 15, 0, step=1)
     st.markdown("---")
     st.markdown("**Developer**: Satyam Kumar")
 
@@ -118,8 +114,12 @@ with col_main:
                             age_raw = float(preds[0])
                             gender_raw = float(preds[1]) if len(preds) > 1 else 0.5
 
-                        # Z-score denormalization
+                        # Decode age using the same normalization stats used during training
+                        # (age was z-score normalized: (age - age_mean) / age_std)
+                        AGE_MEAN = 33.24633554782242
+                        AGE_STD = 19.924041256760226
                         predicted_age = int(round((age_raw * AGE_STD) + AGE_MEAN))
+
                         predicted_age = predicted_age + global_bias
                         predicted_age = max(1, min(predicted_age, max_age))
 
@@ -131,7 +131,7 @@ with col_main:
                         st.caption(f"Confidence: {gender_conf*100:.1f}%")
 
                         st.success(f"**Estimated Age:** {predicted_age} years")
-                        st.caption(f"Raw output (normalized): {age_raw:.4f}")
+                        st.caption(f"Raw output: {age_raw:.4f}")
 
                     except Exception as e:
                         st.error("❌ Prediction error")
