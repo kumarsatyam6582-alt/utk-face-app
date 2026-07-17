@@ -23,7 +23,7 @@ CASCADE_PATH = os.path.join(BASE_DIR, "haarcascade_frontalface_default.xml")
 def load_my_model():
     if not os.path.exists(MODEL_PATH):
         st.error(f"❌ Model file not found at: `{MODEL_PATH}`")
-        st.info("Please upload your `age_gender_model.h5` file into the `model/` folder.")
+        st.info("Please upload your `age_gender_model.keras` file into the `model/` folder.")
         st.stop()
     try:
         return tf.keras.models.load_model(MODEL_PATH, compile=False)
@@ -43,7 +43,7 @@ def crop_face(uploaded_file):
         return None
 
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    
+
     if not os.path.exists(CASCADE_PATH):
         return img_rgb
 
@@ -126,7 +126,7 @@ with col_main:
                             predicted_age = int(round(raw * 85))
                         else:
                             predicted_age = int(round(raw * 3.2))
-                        
+
                         predicted_age = predicted_age + global_bias
                         predicted_age = max(1, min(predicted_age, max_age))
 
@@ -147,6 +147,6 @@ with col_main:
 # Footer
 st.markdown("---")
 st.markdown(
-    "<center><p style='color: gray;'>Developed with ❤️ by Satyam Kumar</p></center>", 
+    "<center><p style='color: gray;'>Developed with ❤️ by Satyam Kumar</p></center>",
     unsafe_allow_html=True
 )
