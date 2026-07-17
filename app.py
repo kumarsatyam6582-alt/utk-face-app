@@ -351,6 +351,6 @@ with col2:
 
 st.markdown(
     '<p style="font-family:JetBrains Mono, monospace; font-size:0.7rem; color:#334155; text-align:center; margin-top:3rem;">'
-    'Developed by Satyam Kumar</p>',
+    'Made with ❤️ by Satyam Kumar</p>',
     unsafe_allow_html=True
 )
