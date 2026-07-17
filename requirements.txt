@@ -1,0 +1,5 @@
+streamlit
+numpy
+tensorflow==2.20.0
+keras==3.13.2
+opencv-python-headless==4.10.0.84
