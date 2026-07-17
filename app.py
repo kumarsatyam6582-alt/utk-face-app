@@ -15,7 +15,7 @@ st.set_page_config(
 IMG_HEIGHT = 224
 IMG_WIDTH = 224
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "model", "age_gender_model.h5")
+MODEL_PATH = os.path.join(BASE_DIR, "model", "age_gender_model.keras")
 CASCADE_PATH = os.path.join(BASE_DIR, "haarcascade_frontalface_default.xml")
 
 # --- MODEL LOADING with Better Error Handling ---
