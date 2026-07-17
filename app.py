@@ -114,18 +114,11 @@ with col_main:
                             age_raw = float(preds[0])
                             gender_raw = float(preds[1]) if len(preds) > 1 else 0.5
 
-                        # Optimized Scaling
-                        raw = age_raw
-                        if raw < -0.4:
-                            predicted_age = int(round((raw + 1.22) * 85))
-                        elif raw < 0.05:
-                            predicted_age = int(round(raw * 520))
-                        elif raw < 0.4:
-                            predicted_age = int(round(raw * 110))
-                        elif raw < 1.0:
-                            predicted_age = int(round(raw * 85))
-                        else:
-                            predicted_age = int(round(raw * 3.2))
+                        # Decode age using the same normalization stats used during training
+                        # (age was z-score normalized: (age - age_mean) / age_std)
+                        AGE_MEAN = 33.24633554782242
+                        AGE_STD = 19.924041256760226
+                        predicted_age = int(round((age_raw * AGE_STD) + AGE_MEAN))
 
                         predicted_age = predicted_age + global_bias
                         predicted_age = max(1, min(predicted_age, max_age))
